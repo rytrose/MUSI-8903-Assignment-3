@@ -21,7 +21,18 @@ class PitchRnn(nn.Module):
         #######################################
         ### BEGIN YOUR CODE HERE
         #######################################
-        pass 
+        self.input_size = 1
+        self.hidden_size = 32
+        self.num_layers = 1
+        self.output_size = 4
+        self.dropout = 0
+        self.no_cuda = True
+
+        self.lstm = nn.LSTM(self.input_size, self.hidden_size, num_layers=self.num_layers, dropout=self.dropout)
+        self.linear = nn.Linear(self.hidden_size, self.output_size)
+
+        self.hidden_and_cell = None
+
         #######################################
         ### END OF YOUR CODE
         #######################################
@@ -38,7 +49,16 @@ class PitchRnn(nn.Module):
         ### BEGIN YOUR CODE HERE
         # implement the forward pass of model
         #######################################
-        output = None
+        self.init_hidden(input.size()[0])
+        input = torch.unsqueeze(torch.transpose(input, 0, 1), 2)
+
+        print("input", input.size())
+
+        lstm_out, self.hidden_and_cell = self.lstm(input, self.hidden_and_cell)
+        print("lstm_out", lstm_out.size())
+        output = self.linear(lstm_out)
+        print("output", output.size())
+
         #######################################
         ### END OF YOUR CODE
         #######################################
@@ -53,7 +73,14 @@ class PitchRnn(nn.Module):
         #######################################
         ### BEGIN YOUR CODE HERE
         #######################################
-        pass 
+        hidden = Variable(torch.zeros(self.num_layers, mini_batch_size, self.hidden_size))
+        cell = Variable(torch.zeros(self.num_layers, mini_batch_size, self.hidden_size))
+
+        if torch.cuda.is_available() and (not self.no_cuda):
+            hidden = hidden.cuda()
+            cell = cell.cuda()
+        self.hidden_and_cell = (hidden, cell)
+
         #######################################
         ### END OF YOUR CODE
         #######################################

@@ -49,9 +49,9 @@ def train(model, criterion, optimizer, data, metric):
     # Initializations
     num_batches = len(data)
     loss_avg = 0
-	# iterate over batches for training
+    # iterate over batches for training
     for batch_idx in range(num_batches):
-		# clear gradients and loss
+        # clear gradients and loss
         model.zero_grad()
         loss = 0
         # extract pitch tensor and score for the batch
@@ -66,7 +66,15 @@ def train(model, criterion, optimizer, data, metric):
         # perform the backward pass and the 
         # optimization step
         #######################################
-        loss_avg = 0
+        output = model(pitch_tensor)[:, :, metric]
+        output = torch.mean(output, 0)
+        print("score", score_tensor.size())
+        print("output", output.size())
+        loss = criterion(output, score_tensor)
+        loss.backward()
+        optimizer.step()
+
+        loss_avg += loss
         #######################################
         ### END OF YOUR CODE
         #######################################
@@ -137,7 +145,11 @@ def adjust_learning_rate(optimizer, epoch, adjust_every):
     # You are free to implement your own 
     # method here
     #######################################
-    pass 
+    if epoch % adjust_every == 0:
+        for param_group in optimizer.param_groups:
+            # Basic decay
+            DECAY = 0.001
+            param_group['lr'] = param_group['lr'] * 1 / (1 + DECAY * epoch)
     #######################################
     ### END OF YOUR CODE
     #######################################

@@ -67,7 +67,7 @@ training_data, _, validation_data, _, _, _ = dataloader.create_split_data(chunk_
 if args.model == 'pitchrnn':
     perf_model = PitchRnn()
 elif args.model == 'pitchcrnn':
-    perf_model = PitchCRnn()       
+    perf_model = PitchCRnn()
 if CUDA_AVAILABLE:
     perf_model.cuda()
 print(perf_model)
@@ -75,7 +75,7 @@ print(perf_model)
 # define loss criterion
 criterion = nn.MSELoss()
 
-# initialize training hyperparamaters 
+# initialize training hyperparamaters
 # you may want to tune these hyperparameters from the argparser during training
 NUM_EPOCHS = args.num_epochs
 LR_RATE = args.lr
@@ -83,7 +83,7 @@ W_DECAY = args.weight_decay
 perf_optimizer = optim.Adam(perf_model.parameters(), lr = LR_RATE, weight_decay = W_DECAY)
 
 # declare save file name
-file_info = args.model + '_' + str(NUM_DATA_POINTS) + '_' + str(NUM_EPOCHS) + '_' + BAND + '_' + str(METRIC)       
+file_info = args.model + '_' + str(NUM_DATA_POINTS) + '_' + str(NUM_EPOCHS) + '_' + BAND + '_' + str(METRIC)
 
 ## define training parameters
 PRINT_EVERY = 1
@@ -98,10 +98,10 @@ try:
     for epoch in range(1, NUM_EPOCHS + 1):
         # perform training and validation
         train_loss, train_r_sq, train_accu, val_loss, val_r_sq, val_accu = train_utils.train_and_validate(perf_model, criterion, perf_optimizer, training_data, validation_data, METRIC)
-        
+
         # adjut learning rate
         train_utils.adjust_learning_rate(perf_optimizer, epoch, ADJUST_EVERY)
-        
+
         # log data for visualization later
         log_parameters = train_utils.log_epoch_stats(
             log_parameters,
@@ -113,19 +113,19 @@ try:
             val_r_sq,
             val_accu
         )
-        
+
         # print loss
         if epoch % PRINT_EVERY == 0:
             print('[%s (%d %.1f%%)]' % (train_utils.time_since(START), epoch, float(epoch) / NUM_EPOCHS * 100))
             print('[%s %0.5f, %s %0.5f, %s %0.5f]'% ('Train Loss: ', train_loss, ' R-sq: ', train_r_sq, ' Accu:', train_accu))
             print('[%s %0.5f, %s %0.5f, %s %0.5f]'% ('Valid Loss: ', val_loss, ' R-sq: ', val_r_sq, ' Accu:', val_accu))
-        
+
         # save model if best validation loss
         if val_loss < best_val_loss:
             n = file_info + '_best'
             train_utils.save(n, perf_model)
             best_val_loss = val_loss
-    
+
     print("Saving...")
     train_utils.save(file_info, perf_model, log_parameters)
 

@@ -3,6 +3,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
+from sklearn.metrics import r2_score, accuracy_score
 
 """
 Contains standard utility functions for training and testing evaluations
@@ -25,8 +26,8 @@ def eval_regression(target, pred):
     # You may use packages such as scikitlearn
     # for this. 
     #######################################
-    r_sq = None
-    accu = None 
+    r_sq = r2_score(target.numpy(), pred.numpy())
+    accu = accuracy_score(target.numpy(), pred.numpy())
     #######################################
     ### END OF YOUR CODE
     #######################################
@@ -62,7 +63,10 @@ def eval_model(model, criterion, data, metric, extra_outs=False):
         # average loss
         # store the model output in 'model_output'
         #######################################
-        loss_avg = 0
+        output = model(pitch_tensor)
+        loss = criterion(output, score_tensor)
+
+        loss_avg += loss
         model_output = None
         #######################################
         ### END OF YOUR CODE
