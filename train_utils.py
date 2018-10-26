@@ -69,8 +69,9 @@ def train(model, criterion, optimizer, data, metric):
         output = model(pitch_tensor)[-1, :, :]
         output = torch.squeeze(output)
 
-        print("score", score_tensor.size())
-        print("output", output.size())
+        if torch.cuda.is_available():
+            score_tensor = score_tensor.cuda()
+
         loss = criterion(output, score_tensor)
         loss.backward()
         optimizer.step()

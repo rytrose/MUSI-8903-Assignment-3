@@ -3,7 +3,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
-from sklearn.metrics import r2_score, accuracy_score
+from sklearn.metrics import r2_score
 
 """
 Contains standard utility functions for training and testing evaluations
@@ -26,12 +26,12 @@ def eval_regression(target, pred):
     # You may use packages such as scikitlearn
     # for this. 
     #######################################
-    r_sq = r2_score(target.numpy(), pred.numpy())
-    accu = accuracy_score(target.numpy(), pred.numpy())
+    r_sq = r2_score(target.cpu().numpy(), pred.cpu().numpy())
+    #accu = accuracy_score(target.cpu().numpy(), pred.cpu().numpy())
     #######################################
     ### END OF YOUR CODE
     #######################################
-    return r_sq, accu
+    return r_sq, 0.0
 
 def eval_model(model, criterion, data, metric, extra_outs=False):
     """
@@ -63,11 +63,16 @@ def eval_model(model, criterion, data, metric, extra_outs=False):
         # average loss
         # store the model output in 'model_output'
         #######################################
-        output = model(pitch_tensor)
+        output = model(pitch_tensor)[-1, :, :]
+        output = torch.squeeze(output)
+
+        if torch.cuda.is_available():
+            score_tensor = score_tensor.cuda()
+
         loss = criterion(output, score_tensor)
 
         loss_avg += loss
-        model_output = None
+        model_output = output
         #######################################
         ### END OF YOUR CODE
         #######################################
