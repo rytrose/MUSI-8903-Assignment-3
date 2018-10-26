@@ -66,8 +66,9 @@ def train(model, criterion, optimizer, data, metric):
         # perform the backward pass and the 
         # optimization step
         #######################################
-        output = model(pitch_tensor)[:, :, metric]
-        output = torch.mean(output, 0)
+        output = model(pitch_tensor)[-1, :, :]
+        output = torch.squeeze(output)
+
         print("score", score_tensor.size())
         print("output", output.size())
         loss = criterion(output, score_tensor)

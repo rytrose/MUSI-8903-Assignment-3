@@ -24,9 +24,8 @@ class PitchRnn(nn.Module):
         self.input_size = 1
         self.hidden_size = 32
         self.num_layers = 1
-        self.output_size = 4
+        self.output_size = 1
         self.dropout = 0
-        self.no_cuda = True
 
         self.lstm = nn.LSTM(self.input_size, self.hidden_size, num_layers=self.num_layers, dropout=self.dropout)
         self.linear = nn.Linear(self.hidden_size, self.output_size)
@@ -76,7 +75,7 @@ class PitchRnn(nn.Module):
         hidden = Variable(torch.zeros(self.num_layers, mini_batch_size, self.hidden_size))
         cell = Variable(torch.zeros(self.num_layers, mini_batch_size, self.hidden_size))
 
-        if torch.cuda.is_available() and (not self.no_cuda):
+        if torch.cuda.is_available():
             hidden = hidden.cuda()
             cell = cell.cuda()
         self.hidden_and_cell = (hidden, cell)
