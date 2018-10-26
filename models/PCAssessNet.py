@@ -7,7 +7,7 @@ from torch.autograd import Variable
 class PitchRnn(nn.Module):
     """
     Class to implement a deep RNN model for music performance assessment using
-	 pitch contours as input
+     pitch contours as input
     """
 
     def __init__(self):
@@ -40,7 +40,7 @@ class PitchRnn(nn.Module):
         """
         Defines the forward pass of the module
         Args:
-            input: 	torch Variable (mini_batch_size x seq_len), of input pitch contours
+            input:     torch Variable (mini_batch_size x seq_len), of input pitch contours
         Returns:
             output: torch Variable (mini_batch_size), containing predicted ratings
         """
@@ -51,16 +51,32 @@ class PitchRnn(nn.Module):
         if torch.cuda.is_available():
             input = input.cuda()
 
+        if self.hidden_and_cell:
+            self.detach_hidden()
+
         self.init_hidden(input.size()[0])
         input = torch.unsqueeze(torch.transpose(input, 0, 1), 2)
 
         lstm_out, self.hidden_and_cell = self.lstm(input, self.hidden_and_cell)
-        output = self.linear(lstm_out)
+        output = self.linear(torch.sigmoid(lstm_out))
 
         #######################################
         ### END OF YOUR CODE
         #######################################
         return output
+
+    def detach_hidden(self):
+        """
+        Detach hidden and cell state to not eat RAMs.
+        """
+        new_hidden = Variable(self.hidden_and_cell[0].data)
+        new_cell = Variable(self.hidden_and_cell[1].data)
+        if torch.cuda.is_available():
+            new_hidden = new_hidden.cuda()
+            new_cell = new_cell.cuda()
+        self.hidden_and_cell = (new_hidden, new_cell)
+        return    
+
 
     def init_hidden(self, mini_batch_size):
         """
@@ -71,8 +87,8 @@ class PitchRnn(nn.Module):
         #######################################
         ### BEGIN YOUR CODE HERE
         #######################################
-        hidden = Variable(torch.zeros(self.num_layers, mini_batch_size, self.hidden_size))
-        cell = Variable(torch.zeros(self.num_layers, mini_batch_size, self.hidden_size))
+        hidden = torch.zeros(self.num_layers, mini_batch_size, self.hidden_size)
+        cell = torch.zeros(self.num_layers, mini_batch_size, self.hidden_size)
 
         if torch.cuda.is_available():
             hidden = hidden.cuda()
@@ -86,7 +102,7 @@ class PitchRnn(nn.Module):
 class PitchCRnn(nn.Module):
     """
     Class to implement a deep CRNN model for music performance assessment using
-	 pitch contours as input
+     pitch contours as input
     """
 
     def __init__(self):
@@ -111,7 +127,7 @@ class PitchCRnn(nn.Module):
         """
         Defines the forward pass of the module
         Args:
-            input: 	torch Variable (mini_batch_size x seq_len), of input pitch contours
+            input:     torch Variable (mini_batch_size x seq_len), of input pitch contours
         Returns:
             output: torch Variable (mini_batch_size), containing predicted ratings
         """
