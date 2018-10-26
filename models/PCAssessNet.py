@@ -48,6 +48,9 @@ class PitchRnn(nn.Module):
         ### BEGIN YOUR CODE HERE
         # implement the forward pass of model
         #######################################
+        if torch.cuda.is_available():
+            input = input.cuda()
+
         self.init_hidden(input.size()[0])
         input = torch.unsqueeze(torch.transpose(input, 0, 1), 2)
 
