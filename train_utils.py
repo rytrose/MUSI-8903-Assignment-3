@@ -51,6 +51,8 @@ def train(model, criterion, optimizer, data, metric):
     loss_avg = 0
     # iterate over batches for training
     for batch_idx in range(num_batches):
+        # Detach for BPTT
+        # model.detach_hidden()
         # clear gradients and loss
         model.zero_grad()
         loss = 0
@@ -76,7 +78,9 @@ def train(model, criterion, optimizer, data, metric):
         loss.backward()
         optimizer.step()
 
-        loss_avg += loss
+        del model.hidden_and_cell
+
+        loss_avg += loss.data
         #######################################
         ### END OF YOUR CODE
         #######################################

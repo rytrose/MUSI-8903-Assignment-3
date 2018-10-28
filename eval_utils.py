@@ -26,12 +26,17 @@ def eval_regression(target, pred):
     # You may use packages such as scikitlearn
     # for this. 
     #######################################
-    r_sq = r2_score(target.cpu().numpy(), pred.cpu().numpy())
-    #accu = accuracy_score(target.cpu().numpy(), pred.cpu().numpy())
+    r_sq = r2_score(target.data, pred.data)
+    rounded_pred = np.around(pred.data)
+    num_equal = (target.data == pred.data).sum()
+    print("targets", target.data)
+    print("predictions", pred.data)
+    print("correct_predictions", num_equal)
+    accu = num_equal / pred.size()[0] 
     #######################################
     ### END OF YOUR CODE
     #######################################
-    return r_sq, 0.0
+    return r_sq, accu
 
 def eval_model(model, criterion, data, metric, extra_outs=False):
     """
@@ -71,7 +76,9 @@ def eval_model(model, criterion, data, metric, extra_outs=False):
 
         loss = criterion(output, score_tensor)
 
-        loss_avg += loss
+        del model.hidden_and_cell
+
+        loss_avg += loss.data
         model_output = output
         #######################################
         ### END OF YOUR CODE

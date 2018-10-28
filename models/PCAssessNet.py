@@ -51,9 +51,6 @@ class PitchRnn(nn.Module):
         if torch.cuda.is_available():
             input = input.cuda()
 
-        if self.hidden_and_cell:
-            self.detach_hidden()
-
         self.init_hidden(input.size()[0])
         input = torch.unsqueeze(torch.transpose(input, 0, 1), 2)
 
@@ -69,12 +66,13 @@ class PitchRnn(nn.Module):
         """
         Detach hidden and cell state to not eat RAMs.
         """
-        new_hidden = Variable(self.hidden_and_cell[0].data)
-        new_cell = Variable(self.hidden_and_cell[1].data)
-        if torch.cuda.is_available():
-            new_hidden = new_hidden.cuda()
-            new_cell = new_cell.cuda()
-        self.hidden_and_cell = (new_hidden, new_cell)
+        if self.hidden_and_cell:
+            new_hidden = Variable(self.hidden_and_cell[0].data)
+            new_cell = Variable(self.hidden_and_cell[1].data)
+            if torch.cuda.is_available():
+                new_hidden = new_hidden.cuda()
+                new_cell = new_cell.cuda()
+            self.hidden_and_cell = (new_hidden, new_cell)
         return    
 
 
