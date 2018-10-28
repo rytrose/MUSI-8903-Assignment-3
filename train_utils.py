@@ -70,7 +70,8 @@ def train(model, criterion, optimizer, data, metric):
         #######################################
         output = model(pitch_tensor)
         print("output size", output.size())
-        output = output[-1, :, :]
+        output = output[:, -1, :]
+        print("output", output)
         output = torch.squeeze(output)
 
         if torch.cuda.is_available():
