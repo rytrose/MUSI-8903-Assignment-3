@@ -71,6 +71,8 @@ def eval_model(model, criterion, data, metric, extra_outs=False):
             score_tensor = score_tensor.cuda()
 
         loss = criterion(output, score_tensor)
+        print("predictions", output)
+        print("targets", score_tensor)
 
         loss_avg += loss.data
         model_output = output
