@@ -76,8 +76,6 @@ def eval_model(model, criterion, data, metric, extra_outs=False):
 
         loss = criterion(output, score_tensor)
 
-        del model.hidden_and_cell
-
         loss_avg += loss.data
         model_output = output
         #######################################

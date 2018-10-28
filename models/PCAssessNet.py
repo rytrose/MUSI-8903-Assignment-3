@@ -22,8 +22,8 @@ class PitchRnn(nn.Module):
         ### BEGIN YOUR CODE HERE
         #######################################
         self.input_size = 1
-        self.hidden_size = 32
-        self.num_layers = 1
+        self.hidden_size = 20
+        self.num_layers = 2
         self.output_size = 1
         self.dropout = 0
 
@@ -55,25 +55,12 @@ class PitchRnn(nn.Module):
         input = torch.unsqueeze(torch.transpose(input, 0, 1), 2)
 
         lstm_out, self.hidden_and_cell = self.lstm(input, self.hidden_and_cell)
-        output = self.linear(torch.sigmoid(lstm_out))
+        output = self.linear(torch.tanh(lstm_out))
 
         #######################################
         ### END OF YOUR CODE
         #######################################
         return output
-
-    def detach_hidden(self):
-        """
-        Detach hidden and cell state to not eat RAMs.
-        """
-        if self.hidden_and_cell:
-            new_hidden = Variable(self.hidden_and_cell[0].data)
-            new_cell = Variable(self.hidden_and_cell[1].data)
-            if torch.cuda.is_available():
-                new_hidden = new_hidden.cuda()
-                new_cell = new_cell.cuda()
-            self.hidden_and_cell = (new_hidden, new_cell)
-        return    
 
 
     def init_hidden(self, mini_batch_size):

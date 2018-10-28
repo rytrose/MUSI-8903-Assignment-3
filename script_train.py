@@ -52,7 +52,7 @@ print('Running on GPU: ', CUDA_AVAILABLE)
 BAND = 'combined'
 SEGMENT = '2'
 NUM_DATA_POINTS = 1000
-NUM_BATCHES = 20
+NUM_BATCHES = 10
 METRIC = args.metric 
 file_name = BAND + '_' + str(SEGMENT) + '_data'
 if sys.version_info[0] < 3:

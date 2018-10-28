@@ -78,8 +78,6 @@ def train(model, criterion, optimizer, data, metric):
         loss.backward()
         optimizer.step()
 
-        del model.hidden_and_cell
-
         loss_avg += loss.data
         #######################################
         ### END OF YOUR CODE
