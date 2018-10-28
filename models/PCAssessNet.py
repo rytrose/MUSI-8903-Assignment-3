@@ -55,6 +55,7 @@ class PitchRnn(nn.Module):
 
         lstm_out, self.hidden_and_cell = self.lstm(torch.unsqueeze(input, 2), self.hidden_and_cell)
         output = self.linear(torch.tanh(lstm_out))
+        print("output", output)
         output = torch.squeeze(output[:, -1, :])
 
         #######################################
