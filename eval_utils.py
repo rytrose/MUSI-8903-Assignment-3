@@ -65,8 +65,7 @@ def eval_model(model, criterion, data, metric, extra_outs=False):
         # average loss
         # store the model output in 'model_output'
         #######################################
-        output = model(pitch_tensor)[:, -1, :]
-        output = torch.squeeze(output)
+        output = model(pitch_tensor)
 
         if torch.cuda.is_available():
             score_tensor = score_tensor.cuda()
