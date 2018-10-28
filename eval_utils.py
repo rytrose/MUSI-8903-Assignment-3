@@ -29,9 +29,6 @@ def eval_regression(target, pred):
     r_sq = r2_score(target.data, pred.data)
     rounded_pred = np.around(pred.data)
     num_equal = (target.data == pred.data).sum()
-    print("targets", target.data)
-    print("predictions", pred.data)
-    print("correct_predictions", num_equal)
     accu = num_equal / pred.size()[0] 
     #######################################
     ### END OF YOUR CODE

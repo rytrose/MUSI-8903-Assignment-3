@@ -68,7 +68,9 @@ def train(model, criterion, optimizer, data, metric):
         # perform the backward pass and the 
         # optimization step
         #######################################
-        output = model(pitch_tensor)[-1, :, :]
+        output = model(pitch_tensor)
+        print("output size", output.size())
+        output = output[-1, :, :]
         output = torch.squeeze(output)
 
         if torch.cuda.is_available():
@@ -78,6 +80,7 @@ def train(model, criterion, optimizer, data, metric):
         loss.backward()
         optimizer.step()
 
+        print("loss.data", loss.data)
         loss_avg += loss.data
         #######################################
         ### END OF YOUR CODE
