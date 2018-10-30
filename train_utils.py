@@ -73,9 +73,7 @@ def train(model, criterion, optimizer, data, metric):
         if torch.cuda.is_available():
             score_tensor = score_tensor.cuda()
 
-        loss = 10*criterion(output, score_tensor)
-        # print("output: {}, score_tensor: {}".format(output[:10], score_tensor[:10]))
-        # print("loss: {}".format(loss.item()))
+        loss = criterion(output, score_tensor)
         loss.backward()
         optimizer.step()
 

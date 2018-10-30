@@ -123,9 +123,9 @@ try:
 
         # print loss
         if epoch % PRINT_EVERY == 0:
-            print('[%s (%d %.1f%%)]' % (train_utils.time_since(START), epoch, float(epoch) / NUM_EPOCHS * 100))
-            print('[%s %0.5f, %s %0.5f, %s %0.5f]'% ('Train Loss: ', train_loss, ' R-sq: ', train_r_sq, ' Accu:', train_accu))
-            print('[%s %0.5f, %s %0.5f, %s %0.5f]'% ('Valid Loss: ', val_loss, ' R-sq: ', val_r_sq, ' Accu:', val_accu))
+            print('Epoch %d - [%s (%d %.1f%%)]' % (epoch, train_utils.time_since(START), epoch, float(epoch) / NUM_EPOCHS * 100))
+            print('Epoch %d - [%s %0.5f, %s %0.5f, %s %0.5f]'% (epoch, 'Train Loss: ', train_loss, ' R-sq: ', train_r_sq, ' Accu:', train_accu))
+            print('Epoch %d - [%s %0.5f, %s %0.5f, %s %0.5f]'% (epoch, 'Valid Loss: ', val_loss, ' R-sq: ', val_r_sq, ' Accu:', val_accu))
 
         # save model if best validation loss
         if val_loss < best_val_loss:
