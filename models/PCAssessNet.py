@@ -22,13 +22,15 @@ class PitchRnn(nn.Module):
         ### BEGIN YOUR CODE HERE
         #######################################
         self.input_size = 1
-        self.hidden_size = 20
+        self.hidden_size = 128
         self.num_layers = 2
         self.output_size = 1
         self.dropout = 0
 
         self.lstm = nn.LSTM(self.input_size, self.hidden_size, num_layers=self.num_layers, dropout=self.dropout, batch_first=True)
-        self.linear = nn.Linear(self.hidden_size, self.output_size)
+        mid_point = (self.hidden_size + self.output_size) // 2
+        self.fc1 = nn.Linear(self.hidden_size, mid_point)
+        self.fc2 = nn.Linear(mid_point, self.output_size)
 
         self.hidden_and_cell = None
 
@@ -52,9 +54,9 @@ class PitchRnn(nn.Module):
             input = input.cuda()
 
         self.init_hidden(input.size()[0])
-
+        
         lstm_out, self.hidden_and_cell = self.lstm(torch.unsqueeze(input, 2), self.hidden_and_cell)
-        output = self.linear(torch.tanh(lstm_out))
+        output = self.fc2(F.relu(self.fc1(torch.tanh(lstm_out))))
         output = torch.squeeze(output[:, -1, :])
 
         #######################################
@@ -78,8 +80,8 @@ class PitchRnn(nn.Module):
         if torch.cuda.is_available():
             hidden = hidden.cuda()
             cell = cell.cuda()
-        self.hidden_and_cell = (hidden, cell)
 
+        self.hidden_and_cell = (hidden, cell)
         #######################################
         ### END OF YOUR CODE
         #######################################

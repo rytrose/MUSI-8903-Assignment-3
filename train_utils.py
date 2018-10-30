@@ -10,6 +10,8 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 import eval_utils
 
+torch.cuda.device(1)
+
 def augment_data(data):
     """
     Augments the data using pitch shifting
