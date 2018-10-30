@@ -52,7 +52,7 @@ print('Running on GPU: ', CUDA_AVAILABLE)
 BAND = 'combined'
 SEGMENT = '2'
 NUM_DATA_POINTS = 1000
-NUM_BATCHES = 10
+NUM_BATCHES = 100
 METRIC = args.metric 
 file_name = BAND + '_' + str(SEGMENT) + '_data'
 if sys.version_info[0] < 3:
@@ -97,7 +97,14 @@ try:
     log_parameters = train_utils.log_init()
     for epoch in range(1, NUM_EPOCHS + 1):
         # perform training and validation
-        train_loss, train_r_sq, train_accu, val_loss, val_r_sq, val_accu = train_utils.train_and_validate(perf_model, criterion, perf_optimizer, training_data, validation_data, METRIC)
+        train_loss, train_r_sq, train_accu, val_loss, val_r_sq, val_accu = train_utils.train_and_validate(
+		perf_model, 
+		criterion, 
+		perf_optimizer, 
+		training_data, 
+		validation_data, 
+		METRIC
+	)
 
         # adjut learning rate
         train_utils.adjust_learning_rate(perf_optimizer, epoch, ADJUST_EVERY)
