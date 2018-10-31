@@ -19,19 +19,18 @@ import train_utils
 # Training settings
 parser = argparse.ArgumentParser(description='Assign3: Performance Asssessment')
 # Hyperparameters
-parser.add_argument('--lr', type=float, metavar='LR', default=0.001,
+parser.add_argument('-lr', '--learning_rate', type=float, metavar='LR', default=0.001,
                     help='learning rate')
 # parser.add_argument('--momentum', type=float, metavar='M',
 #                     help='SGD momentum')
-parser.add_argument('--weight_decay', type=float, default=0.0,
+parser.add_argument('-wd', '--weight_decay', type=float, default=0.0,
                     help='Weight decay hyperparameter')
-parser.add_argument('--num_epochs', type=int, metavar='N', default=50,
+parser.add_argument('-e', '--num_epochs', type=int, metavar='N', default=50,
                     help='number of epochs to train')
-parser.add_argument('--model', default='pitchrnn',
+parser.add_argument('-m', '--model', default='pitchrnn',
                     choices=['pitchrnn', 'pitchcrnn'],
                     help='which model to train / evaluate')
-parser.add_argument('--metric', type=int, default=1,
-                    choices=[0, 1, 2, 3],
+parser.add_argument('--metric', type=int, default=1, choices=[0, 1, 2, 3],
                     help='0: Musicality, 1: Note Accuracy, 2: Rhythmic Accuracy, 3: Tone Quality')
 parser.add_argument('--save-dir', default='models/')
 # Other configuration
@@ -78,9 +77,9 @@ criterion = nn.MSELoss()
 # initialize training hyperparamaters
 # you may want to tune these hyperparameters from the argparser during training
 NUM_EPOCHS = args.num_epochs
-LR_RATE = args.lr
+LR_RATE = args.learning_rate
 W_DECAY = args.weight_decay
-perf_optimizer = optim.Adam(perf_model.parameters(), lr = LR_RATE, weight_decay = W_DECAY)
+perf_optimizer = optim.Adam(perf_model.parameters(), lr=LR_RATE, weight_decay=W_DECAY)
 
 # declare save file name
 file_info = args.model + '_' + str(NUM_DATA_POINTS) + '_' + str(NUM_EPOCHS) + '_' + BAND + '_' + str(METRIC)
@@ -123,9 +122,10 @@ try:
 
         # print loss
         if epoch % PRINT_EVERY == 0:
-            print('Epoch %d - [%s (%d %.1f%%)]' % (epoch, train_utils.time_since(START), epoch, float(epoch) / NUM_EPOCHS * 100))
-            print('Epoch %d - [%s %0.5f, %s %0.5f, %s %0.5f]'% (epoch, 'Train Loss: ', train_loss, ' R-sq: ', train_r_sq, ' Accu:', train_accu))
-            print('Epoch %d - [%s %0.5f, %s %0.5f, %s %0.5f]'% (epoch, 'Valid Loss: ', val_loss, ' R-sq: ', val_r_sq, ' Accu:', val_accu))
+            print('='*20 + '\nEpoch %d / %d\n' % (epoch, NUM_EPOCHS) + '='*20)
+            print('[%s (%d %.1f%%)]' % (train_utils.time_since(START), epoch, float(epoch) / NUM_EPOCHS * 100))
+            print('[%s %0.5f, %s %0.5f, %s %0.5f]'% ('Train Loss: ', train_loss, ' R-sq: ', train_r_sq, ' Accu:', train_accu))
+            print('[%s %0.5f, %s %0.5f, %s %0.5f]'% ('Valid Loss: ', val_loss, ' R-sq: ', val_r_sq, ' Accu:', val_accu))
 
         # save model if best validation loss
         if val_loss < best_val_loss:

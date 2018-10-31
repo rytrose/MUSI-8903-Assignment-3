@@ -129,27 +129,53 @@ class PitchCRnn(nn.Module):
         #######################################
         ### BEGIN YOUR CODE HERE
         #######################################
-        self.lstm_input_size = 1
-        self.hidden_size = 128
+        self.lstm_hidden_size = 128
         self.num_layers = 2
-        self.output_size = 1
-        self.dropout = 0
+        self.bidir = True
 
-        self.conv1 = nn.Conv1d(1, 1, 30, padding=15)
-        self.maxpool1 = nn.MaxPool1d(6, padding=3)
-        self.conv2 = nn.Conv1d(1, 1, 15, padding=7)
-        self.maxpool2 = nn.MaxPool1d(4, padding=2)
+        output_size = 1
+        dropout = 0.7
 
-        self.in_fc1 = nn.Linear(1, 32)
-        self.in_fc2 = nn.Linear(32, 64)
-        self.lstm = nn.LSTM(64, self.hidden_size, num_layers=self.num_layers, dropout=self.dropout, batch_first=True)
+        self.conv1 = nn.Conv1d(1, self.lstm_hidden_size // 4, 100, padding=50, stride=2)
+        self.maxpool1 = nn.MaxPool1d(4, padding=2)
+        self.conv2 = nn.Conv1d(self.lstm_hidden_size // 4, self.lstm_hidden_size // 2, 10, padding=5)
+        self.maxpool2 = nn.MaxPool1d(2, padding=1)
 
-        mid_point = (self.hidden_size + self.output_size) // 2
-        self.out_fc1 = nn.Linear(self.hidden_size, mid_point)
-        self.out_fc2 = nn.Linear(mid_point, self.output_size)
+        self.lstm = nn.LSTM(self.lstm_hidden_size // 2, self.lstm_hidden_size, num_layers=self.num_layers, 
+                dropout=dropout, batch_first=True, bidirectional=self.bidir)
 
-        self.hidden_and_cell = None
+        lstm_out_dim = (1 + int(self.bidir))*self.lstm_hidden_size
+
+        mid_point = (lstm_out_dim + output_size) // 2
+        self.out_fc1 = nn.Linear(lstm_out_dim, mid_point)
+        self.out_fc2 = nn.Linear(mid_point, output_size)
+
         self.init_params()
+        #######################################
+        ### END OF YOUR CODE
+        #######################################
+
+    def init_params(self):
+        for param in self.parameters():
+            param.data.uniform_(-0.05, 0.05)
+
+    def init_hidden(self, batch_size, hidden_size):
+        """
+        Initializes the hidden state of the recurrent layers
+        Args:
+            batch_size: number of data samples in the mini-batch
+        """
+        #######################################
+        ### BEGIN YOUR CODE HERE
+        #######################################
+        hidden = torch.zeros((1 + int(self.bidir))*self.num_layers, batch_size, hidden_size)
+        cell = torch.zeros((1 + int(self.bidir))*self.num_layers, batch_size, hidden_size)
+
+        if torch.cuda.is_available():
+            hidden = hidden.cuda()
+            cell = cell.cuda()
+
+        return (hidden, cell)
         #######################################
         ### END OF YOUR CODE
         #######################################
@@ -169,8 +195,6 @@ class PitchCRnn(nn.Module):
         if torch.cuda.is_available():
             seq = seq.cuda()
 
-        self.init_hidden(seq.size()[0])
-
         # maybe this isn't great to do, because you are reranging the data within a small section, while the 
         # validation will be over an entire sequence
         seq = 10*(seq - seq.mean())/seq.std()
@@ -178,50 +202,20 @@ class PitchCRnn(nn.Module):
             seq = torch.unsqueeze(seq, 0)
         seq = torch.unsqueeze(seq, 1)
 
-        seq = self.maxpool1(F.relu(self.conv1(seq)))
-        seq = self.maxpool2(F.relu(self.conv2(seq)))
+        seq = F.relu(self.conv1(seq))
+        seq = self.maxpool1(seq)
+        seq = F.relu(self.conv2(seq))
+        seq = self.maxpool2(seq)
+    
+        seq = seq.view(seq.size()[0], seq.size()[2], seq.size()[1])
 
-        seq = torch.squeeze(seq, dim=1)
-        seq = torch.unsqueeze(seq, 2)
-
-        seq = self.in_fc2(F.relu(self.in_fc1(seq)))
-
-        lstm_out, self.hidden_and_cell = self.lstm(seq, self.hidden_and_cell)
+        hc = self.init_hidden(seq.size()[0], self.lstm_hidden_size)
+        lstm_out, _ = self.lstm(seq, hc)
         output = self.out_fc2(F.relu(self.out_fc1(lstm_out)))
     
-        output = torch.squeeze(output[:, -1, :])
+        output = torch.sigmoid(torch.squeeze(output[:, -1, :]))
         #######################################
         ### END OF YOUR CODE
         #######################################
         return output
 
-        #######################################
-        ### END OF YOUR CODE
-        #######################################
-        return output
-
-    def init_params(self):
-         for param in self.parameters():
-            param.data.uniform_(-0.05, 0.05)
-         return
-
-    def init_hidden(self, mini_batch_size):
-        """
-        Initializes the hidden state of the recurrent layers
-        Args:
-            mini_batch_size: number of data samples in the mini-batch
-        """
-        #######################################
-        ### BEGIN YOUR CODE HERE
-        #######################################
-        hidden = torch.zeros(self.num_layers, mini_batch_size, self.hidden_size)
-        cell = torch.zeros(self.num_layers, mini_batch_size, self.hidden_size)
-
-        if torch.cuda.is_available():
-            hidden = hidden.cuda()
-            cell = cell.cuda()
-
-        self.hidden_and_cell = (hidden, cell)
-        #######################################
-        ### END OF YOUR CODE
-        #######################################
