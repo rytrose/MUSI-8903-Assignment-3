@@ -152,3 +152,6 @@ else:
 # run on validation set
 val_loss, val_r_sq, val_accu = eval_utils.eval_model(perf_model, criterion, validation_data, METRIC)
 print('[%s %0.5f, %s %0.5f, %s %0.5f]'% ('Best Valid Loss: ', val_loss, ' R-sq: ', val_r_sq, ' Accu:', val_accu))
+
+print('Saving best model with timestamp')
+train_utils.save(file_info + time.strftime("_%m-%d_%H-%M-%S"), perf_model, log_parameters)

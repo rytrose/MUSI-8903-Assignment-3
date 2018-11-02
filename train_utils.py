@@ -153,10 +153,13 @@ def adjust_learning_rate(optimizer, epoch, adjust_every):
     # method here
     #######################################
     if epoch % adjust_every == 0:
+        new_lr = None
         for param_group in optimizer.param_groups:
             # Basic decay
-            DECAY = 0.001
+            DECAY = 0.01
             param_group['lr'] = param_group['lr'] * 1 / (1 + DECAY * epoch)
+            new_lr = param_group['lr']
+        print("lr", new_lr)
     #######################################
     ### END OF YOUR CODE
     #######################################

@@ -205,8 +205,8 @@ class PitchCRnn(nn.Module):
         seq = F.relu(self.conv1(seq))
         seq = self.maxpool1(seq)
         seq = F.relu(self.conv2(seq))
-        seq = self.maxpool2(seq)
-    
+        seq = self.maxpool2(seq)        
+  
         seq = seq.view(seq.size()[0], seq.size()[2], seq.size()[1])
 
         hc = self.init_hidden(seq.size()[0], self.lstm_hidden_size)
